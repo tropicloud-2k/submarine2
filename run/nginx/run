@@ -1,0 +1,3 @@
+#!/bin/bash
+
+exec sudo nginx -c /submarine/etc/nginx/nginx.conf

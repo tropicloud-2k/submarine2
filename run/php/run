@@ -1,0 +1,3 @@
+#!/bin/bash
+
+exec php-fpm -c /submarine/etc/php/php.ini -y /submarine/etc/php/php-fpm.conf

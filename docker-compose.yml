@@ -1,0 +1,13 @@
+submarine:
+  image: tropicloud/submarine
+  env_file: .env
+  volumes:
+  - /opt/www:/home/wordpress
+  - /opt/ssl:/home/wordpress/conf/ssl
+  external_links:
+  - submarine_mysql_1:mysql
+  - submarine_cache_1:cache
+  - submarine_redis_1:redis
+  restart: always
+  stdin_open: true
+  tty: true
