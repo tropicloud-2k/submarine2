@@ -1,13 +1,65 @@
-submarine:
-  image: tropicloud/submarine
-  env_file: .env
+nginx:
+  container_name: nginx
+  image: nginx
+  ports:
+  - 80:80/tcp
+  - 443:443/tcp
+  - 8080:8080/tcp
   volumes:
-  - /opt/www:/home/wordpress
-  - /opt/ssl:/home/wordpress/conf/ssl
-  external_links:
-  - submarine_mysql_1:mysql
-  - submarine_cache_1:cache
-  - submarine_redis_1:redis
+  - /opt/submarine/acme:/var/www/letsencrypt
+  - /opt/submarine/certs:/etc/nginx/certs
+  - /opt/submarine/nginx:/etc/nginx/conf.d
+  - /opt/submarine/vhost:/etc/nginx/vhost.d
+  restart: 'always'
+  stdin_open: true
+  tty: true
+mysql:
+  image: mariadb
+  environment:
+    MYSQL_ROOT_PASSWORD: af55d770156fe3f9
+  restart: 'always'
+  stdin_open: true
+  tty: true
+cache:
+  image: memcached
+  restart: 'always'
+  stdin_open: true
+  tty: true
+redis:
+  image: redis
+  restart: 'always'
+  stdin_open: true
+  tty: true
+submarine:
+  build: .
+  env_file: .env
+  command: --test-cert --webroot
+  volumes:
+  - /opt/submarine/www/${WP_DOMAIN}:/submarine
+  - /opt/submarine/acme:/submarine/acme
+  - /opt/submarine/certs:/submarine/ssl
+  links:
+  - nginx:nginx
+  - mysql:mysql
+  - cache:cache
+  - redis:redis
   restart: always
+  stdin_open: true
+  tty: true
+discovery:
+  image: jwilder/docker-gen
+  command: -config /etc/docker-gen.cfg
+  links:
+  - nginx:nginx
+  - mysql:mysql
+  - cache:cache
+  - redis:redis
+  volumes_from:
+  - nginx
+  volumes:
+  - /var/run/docker.sock:/tmp/docker.sock:ro
+  - ${PWD}/etc/docker-gen.cfg:/etc/docker-gen.cfg
+  - ${PWD}/etc/nginx/proxy:/etc/docker-gen/templates
+  restart: 'always'
   stdin_open: true
   tty: true

@@ -5,7 +5,6 @@ ADD . /wps
 RUN /wps/bin/build.sh
 
 ENV WP_ENV=development \
-    WP_PORT=443 \
     WP_REPO=https://github.com/roots/bedrock.git
 
 EXPOSE 80 443

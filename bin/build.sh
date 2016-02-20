@@ -2,6 +2,7 @@
 
 echo "http://nl.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories
 echo "http://nl.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories
+
 apk --update add bash bc curl git jq nano msmtp s6 sudo zip \
   letsencrypt \
   libmemcached \

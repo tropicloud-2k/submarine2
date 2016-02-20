@@ -2,6 +2,7 @@
 
 export user="submarine"
 export home="/submarine"
+export acme="$home/acme"
 export etc="$home/etc"
 export log="$home/log"
 export run="$home/run"
@@ -15,8 +16,8 @@ if [[ -z $WP_DOMAIN ]]; then
   exit 1
 else
   if [[ $WP_PORT -eq "443" ]];
-    then SCHEME=https
-    else SCHEME=http
+  then export SCHEME=https
+  else export SCHEME=http
   fi
   export WP_DOMAIN=$(echo $WP_DOMAIN | cut -d, -f1)
   export WP_HOME=${SCHEME}://${WP_DOMAIN}

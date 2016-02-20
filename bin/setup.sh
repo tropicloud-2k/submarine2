@@ -20,6 +20,8 @@ fi
 
 # SUBMARINE --------------------------------------------------------------------
 
+[[ ! -f $acme/index.html ]] && curl -sL s3.tropicloud.net > $acme/index.html
+
 if [[ ! -d $log ]]; then mkdir -p $log; fi
 if [[ ! -d $etc ]]; then
   cp -R /wps/etc $etc
@@ -28,6 +30,30 @@ fi
 if [[ ! -d $run ]]; then
   cp -R /wps/run $run
   find $run -type f -exec chmod +x {} \;
+fi
+
+# SSL --------------------------------------------------------------------------
+
+if [[ $WP_PORT -eq "443" ]]; then
+
+  echo "=> Creating SSL certificates"
+  [[ ! -d $ssl ]] && mkdir -p $ssl
+  SSL_OPT="--non-interactive --agree-tos"
+  if [[ $@ == *'--test-cert'* ]]; then
+    export SSL_OPT="$SSL_OPT --test-cert"
+  fi
+  if [[ $@ == *'--webroot'* ]]; then
+    export SSL_OPT="$SSL_OPT --webroot -w $acme"
+  elif [[ $@ == *'--standalone' ]]; then
+    export SSL_OPT="$SSL_OPT --standalone"
+  fi
+  ln -sf $etc/nginx/https.conf $etc/nginx/conf.d/https.conf
+  if letsencrypt certonly $SSL_OPT -d $WP_DOMAIN -m $WP_MAIL; then
+    cat /etc/letsencrypt/live/$WP_DOMAIN/fullchain.pem > $ssl/$WP_DOMAIN.crt
+    cat /etc/letsencrypt/live/$WP_DOMAIN/privkey.pem > $ssl/$WP_DOMAIN.key
+  # if letsencrypt fails, fallback to openssl
+  else cd $ssl && curl -sL http://git.io/vmgTS | sh -s $WP_DOMAIN
+  fi
 fi
 
 # WORDPRESS --------------------------------------------------------------------
@@ -52,20 +78,6 @@ if [[ ! -d $www ]]; then
     --admin_email=$WP_MAIL \
     --admin_password=$WP_PASS
   fi
-fi
-
-# SSL --------------------------------------------------------------------------
-
-if [[ $WP_PORT -eq "443" ]]; then
-  if [[ $@ == *'--test-cert'* ]];
-    then SSL_OPT="--agree-tos --test-cert"
-    else SSL_OPT="--agree-tos"
-  fi
-  echo "=> Creating SSL certificates" && mkdir -p $ssl
-  letsencrypt certonly -m $WP_MAIL -d $WP_DOMAIN $SSL_OPT
-  ln -sf $etc/nginx/https.conf $etc/nginx/conf.d/https.conf
-  cat /etc/letsencrypt/live/$WP_DOMAIN/*.pem > $ssl/$WP_DOMAIN.crt
-  cat /etc/letsencrypt/live/$WP_DOMAIN/privkey.pem > $ssl/$WP_DOMAIN.key
 fi
 
 # ENV --------------------------------------------------------------------------
