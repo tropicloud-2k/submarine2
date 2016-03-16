@@ -30,22 +30,6 @@ redis:
   restart: 'always'
   stdin_open: true
   tty: true
-submarine:
-  build: .
-  env_file: .env
-  command: --test-cert --webroot
-  volumes:
-  - /opt/submarine/www/${WP_DOMAIN}:/submarine
-  - /opt/submarine/acme:/submarine/acme
-  - /opt/submarine/certs:/submarine/ssl
-  links:
-  - nginx:nginx
-  - mysql:mysql
-  - cache:cache
-  - redis:redis
-  restart: always
-  stdin_open: true
-  tty: true
 discovery:
   image: jwilder/docker-gen
   command: -config /etc/docker-gen.cfg
@@ -61,5 +45,21 @@ discovery:
   - ${PWD}/etc/docker-gen.cfg:/etc/docker-gen.cfg
   - ${PWD}/etc/nginx/proxy:/etc/docker-gen/templates
   restart: 'always'
+  stdin_open: true
+  tty: true
+submarine:
+  build: .
+  env_file: .env
+  command: --test-cert --webroot
+  volumes:
+  - /opt/submarine/www/${WP_DOMAIN}:/submarine
+  - /opt/submarine/acme:/submarine/acme
+  - /opt/submarine/certs:/submarine/ssl
+  links:
+  - nginx:nginx
+  - mysql:mysql
+  - cache:cache
+  - redis:redis
+  restart: always
   stdin_open: true
   tty: true
