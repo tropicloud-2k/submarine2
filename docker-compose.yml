@@ -15,8 +15,7 @@ nginx:
   tty: true
 mysql:
   image: mariadb
-  environment:
-    MYSQL_RANDOM_ROOT_PASSWORD: yes
+  env_file: .env_mysql
   restart: 'always'
   stdin_open: true
   tty: true
