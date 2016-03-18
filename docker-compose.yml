@@ -2,14 +2,14 @@ nginx:
   container_name: nginx
   image: nginx
   ports:
-  - 80:80/tcp
-  - 443:443/tcp
-  - 8080:8080/tcp
+    - 80:80/tcp
+    - 443:443/tcp
+    - 8080:8080/tcp
   volumes:
-  - ${PWD}/opt/acme:/var/www/letsencrypt
-  - ${PWD}/opt/certs:/etc/nginx/certs
-  - ${PWD}/opt/nginx:/etc/nginx/conf.d
-  - ${PWD}/opt/vhost:/etc/nginx/vhost.d
+    - ${PWD}/vol/acme:/var/www/letsencrypt
+    - ${PWD}/vol/certs:/etc/nginx/certs
+    - ${PWD}/vol/nginx:/etc/nginx/conf.d
+    - ${PWD}/vol/vhost:/etc/nginx/vhost.d
   restart: 'always'
   stdin_open: true
   tty: true
@@ -33,16 +33,16 @@ discovery:
   image: jwilder/docker-gen
   command: -config /etc/discovery.conf
   links:
-  - nginx:nginx
-  - mysql:mysql
-  - cache:cache
-  - redis:redis
+    - nginx:nginx
+    - mysql:mysql
+    - cache:cache
+    - redis:redis
   volumes_from:
-  - nginx
+    - nginx
   volumes:
-  - /var/run/docker.sock:/tmp/docker.sock:ro
-  - ${PWD}/etc/discovery.conf:/etc/discovery.conf
-  - ${PWD}/etc/nginx/proxy:/etc/docker-gen/templates
+    - /var/run/docker.sock:/tmp/docker.sock:ro
+    - ${PWD}/etc/discovery.conf:/etc/discovery.conf
+    - ${PWD}/etc/nginx/proxy:/etc/docker-gen/templates
   restart: 'always'
   stdin_open: true
   tty: true
@@ -51,14 +51,20 @@ submarine:
   env_file: .env
   command: --test-cert --webroot
   volumes:
-  - ${PWD}/opt/www/${WP_DOMAIN}:/submarine
-  - ${PWD}/opt/acme:/submarine/acme
-  - ${PWD}/opt/certs:/submarine/ssl
+    - ${PWD}/vol/www/${WP_DOMAIN}:/submarine
+    - ${PWD}/vol/acme:/submarine/acme
+    - ${PWD}/vol/certs:/submarine/ssl
   links:
-  - nginx:nginx
-  - mysql:mysql
-  - cache:cache
-  - redis:redis
+    - nginx:nginx
+    - mysql:mysql
+    - cache:cache
+    - redis:redis
+  depends_on:
+    - nginx
+    - mysql
+    - cache
+    - redis
+    - discovery
   restart: always
   stdin_open: true
   tty: true
