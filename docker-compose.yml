@@ -6,17 +6,16 @@ nginx:
   - 443:443/tcp
   - 8080:8080/tcp
   volumes:
-  - /opt/submarine/acme:/var/www/letsencrypt
-  - /opt/submarine/certs:/etc/nginx/certs
-  - /opt/submarine/nginx:/etc/nginx/conf.d
-  - /opt/submarine/vhost:/etc/nginx/vhost.d
+  - ${PWD}/opt/acme:/var/www/letsencrypt
+  - ${PWD}/opt/certs:/etc/nginx/certs
+  - ${PWD}/opt/nginx:/etc/nginx/conf.d
+  - ${PWD}/opt/vhost:/etc/nginx/vhost.d
   restart: 'always'
   stdin_open: true
   tty: true
 mysql:
   image: mariadb
-  environment:
-    MYSQL_ROOT_PASSWORD: af55d770156fe3f9
+  env_file: .env-db
   restart: 'always'
   stdin_open: true
   tty: true
@@ -32,7 +31,7 @@ redis:
   tty: true
 discovery:
   image: jwilder/docker-gen
-  command: -config /etc/docker-gen.cfg
+  command: -config /etc/discovery.conf
   links:
   - nginx:nginx
   - mysql:mysql
@@ -42,7 +41,7 @@ discovery:
   - nginx
   volumes:
   - /var/run/docker.sock:/tmp/docker.sock:ro
-  - ${PWD}/etc/docker-gen.cfg:/etc/docker-gen.cfg
+  - ${PWD}/etc/discovery.conf:/etc/discovery.conf
   - ${PWD}/etc/nginx/proxy:/etc/docker-gen/templates
   restart: 'always'
   stdin_open: true
@@ -52,9 +51,9 @@ submarine:
   env_file: .env
   command: --test-cert --webroot
   volumes:
-  - /opt/submarine/www/${WP_DOMAIN}:/submarine
-  - /opt/submarine/acme:/submarine/acme
-  - /opt/submarine/certs:/submarine/ssl
+  - ${PWD}/opt/www/${WP_DOMAIN}:/submarine
+  - ${PWD}/opt/acme:/submarine/acme
+  - ${PWD}/opt/certs:/submarine/ssl
   links:
   - nginx:nginx
   - mysql:mysql
