@@ -1,70 +1,83 @@
-nginx:
-  container_name: nginx
-  image: nginx
-  ports:
-    - 80:80/tcp
-    - 443:443/tcp
-    - 8080:8080/tcp
-  volumes:
-    - ${PWD}/vol/acme:/var/www/letsencrypt
-    - ${PWD}/vol/certs:/etc/nginx/certs
-    - ${PWD}/vol/nginx:/etc/nginx/conf.d
-    - ${PWD}/vol/vhost:/etc/nginx/vhost.d
-  restart: 'always'
-  stdin_open: true
-  tty: true
-mysql:
-  image: mariadb
-  env_file: .env_mysql
-  restart: 'always'
-  stdin_open: true
-  tty: true
-cache:
-  image: memcached
-  restart: 'always'
-  stdin_open: true
-  tty: true
-redis:
-  image: redis
-  restart: 'always'
-  stdin_open: true
-  tty: true
-discovery:
-  image: jwilder/docker-gen
-  command: -config /etc/discovery.conf
-  links:
-    - nginx:nginx
-    - mysql:mysql
-    - cache:cache
-    - redis:redis
-  volumes_from:
-    - nginx
-  volumes:
-    - /var/run/docker.sock:/tmp/docker.sock:ro
-    - ${PWD}/etc/discovery.conf:/etc/discovery.conf
-    - ${PWD}/etc/nginx/proxy:/etc/docker-gen/templates
-  restart: 'always'
-  stdin_open: true
-  tty: true
-submarine:
-  build: .
-  env_file: .env
-  command: --test-cert --webroot
-  volumes:
-    - ${PWD}/vol/www/${WP_DOMAIN}:/submarine
-    - ${PWD}/vol/acme:/submarine/acme
-    - ${PWD}/vol/certs:/submarine/ssl
-  links:
-    - nginx:nginx
-    - mysql:mysql
-    - cache:cache
-    - redis:redis
-  depends_on:
-    - nginx
-    - mysql
-    - cache
-    - redis
-    - discovery
-  restart: always
-  stdin_open: true
-  tty: true
+version: '2'
+services:
+  nginx:
+    container_name: nginx
+    image: nginx
+    ports:
+      - 80:80/tcp
+      - 443:443/tcp
+      - 8080:8080/tcp
+    volumes:
+      - wp-data/acme:/var/www/letsencrypt
+      - wp-data/certs:/etc/nginx/certs
+      - wp-data/nginx:/etc/nginx/conf.d
+      - wp-data/vhost:/etc/nginx/vhost.d
+    restart: 'always'
+    stdin_open: true
+    tty: true
+  mysql:
+    image: mariadb
+    env_file: .env
+    volumes:
+      - mysql-data:/var/lib/redis
+    restart: 'always'
+    stdin_open: true
+    tty: true
+  cache:
+    image: memcached
+    restart: 'always'
+    stdin_open: true
+    tty: true
+  redis:
+    image: redis
+    volumes:
+      - redis-data:/var/lib/redis
+    restart: 'always'
+    stdin_open: true
+    tty: true
+  discovery:
+    image: jwilder/docker-gen
+    command: -config /etc/discovery.conf
+    links:
+      - nginx:nginx
+      - mysql:mysql
+      - cache:cache
+      - redis:redis
+    volumes_from:
+      - nginx
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+      - ${PWD}/etc/discovery.conf:/etc/discovery.conf
+      - ${PWD}/etc/nginx/proxy:/etc/docker-gen/templates
+    restart: 'always'
+    stdin_open: true
+    tty: true
+  submarine:
+    build: .
+    env_file: .env
+    command: --test-cert --webroot
+    volumes:
+      - wp-data/www:/submarine
+      - wp-data/acme:/submarine/acme
+      - wp-data/certs:/submarine/ssl
+    links:
+      - nginx:nginx
+      - mysql:mysql
+      - cache:cache
+      - redis:redis
+    depends_on:
+      - nginx
+      - mysql
+      - cache
+      - redis
+      - discovery
+    restart: always
+    stdin_open: true
+    tty: true
+volumes:
+  wp-data:
+    driver: local
+  mysql-data:
+    driver: local
+  redis-data:
+    driver: local
