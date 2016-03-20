@@ -1,7 +1,7 @@
 # .env and text #
 ###################
 .ftpconfig
-.env*
+.env
 _*.sh
 
 # Compiled source #

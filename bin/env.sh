@@ -16,8 +16,8 @@ if [[ -z $WP_DOMAIN ]]; then
   exit 1
 else
   if [[ $WP_PORT -eq "443" ]];
-  then export SCHEME=https
-  else export SCHEME=http
+    then export SCHEME=https
+    else export SCHEME=http
   fi
   export WP_DOMAIN=$(echo $WP_DOMAIN | cut -d, -f1)
   export WP_HOME=${SCHEME}://${WP_DOMAIN}
@@ -28,7 +28,7 @@ fi
 if [[ -z $DB_HOST ]]; then
   if dig mysql > /dev/null;
     then export DB_HOST=mysql
-  else echo "ERROR: DB_HOST is not defined" && exit 1
+    else echo "ERROR: DB_HOST is not defined" && exit 1
   fi
 fi
 

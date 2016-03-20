@@ -8,6 +8,7 @@ apk --update add bash bc curl git jq nano msmtp s6 sudo zip \
   libmemcached \
   mariadb-client \
   nginx-naxsi \
+  openssl \
   php-cli \
   php-curl \
   php-ctype \

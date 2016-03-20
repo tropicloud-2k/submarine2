@@ -4,14 +4,14 @@ sleep $(shuf -i 3-10 -n 1)
 source /wps/bin/env.sh
 
 if [[ ! -f $home/.submarine ]]; then
-  echo "=> Creating $WP_DOMAIN cluster"
+  echo "=> Bootstraping $WP_DOMAIN"
   source /wps/bin/setup.sh
 fi
 
 if [[ -f $home/.bootstrap ]]; then
   echo "=> Waiting to join cluster"
   while [[ -f $home/.bootstrap ]]; do
-    sleep 5
+    sleep 3
   done
 fi
 
