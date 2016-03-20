@@ -15,7 +15,7 @@ nginx:
   tty: true
 mysql:
   image: mariadb
-  env_file: .env
+  env_file: .env_db
   volumes:
     - /opt/submarine/mysql:/var/lib/mysql
   restart: 'always'
