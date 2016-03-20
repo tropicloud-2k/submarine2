@@ -2,7 +2,7 @@
 ###################
 .ftpconfig
 .env
-_*.sh
+.env_db
 
 # Compiled source #
 ###################
