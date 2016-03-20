@@ -2,6 +2,7 @@
 ###################
 .ftpconfig
 .env
+.env_wp
 .env_db
 
 # Compiled source #

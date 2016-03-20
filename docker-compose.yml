@@ -50,7 +50,7 @@ discovery:
   tty: true
 submarine:
   build: .
-  env_file: .env
+  env_file: .env_wp
   command: --test-cert --webroot
   volumes:
     - /opt/submarine/www:/submarine
