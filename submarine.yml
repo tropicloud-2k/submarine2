@@ -1,0 +1,48 @@
+nginx:
+  build: ../subproxy
+  ports:
+    - 80:80/tcp
+    - 443:443/tcp
+    - 8080:8080/tcp
+  volumes:
+    - /opt/submarine/acme:/var/www/letsencrypt
+    - /opt/submarine/certs:/etc/nginx/certs
+    - /opt/submarine/conf.d:/etc/nginx/conf.d
+    - /opt/submarine/vhost.d:/etc/nginx/vhost.d
+  restart: 'always'
+  stdin_open: true
+  tty: true
+mysql:
+  image: mariadb
+  env_file: .env_db
+  volumes:
+    - /opt/submarine/mysql:/var/lib/mysql
+  restart: 'always'
+  stdin_open: true
+  tty: true
+cache:
+  image: memcached
+  restart: 'always'
+  stdin_open: true
+  tty: true
+redis:
+  image: redis
+  restart: 'always'
+  stdin_open: true
+  tty: true
+submarine:
+  build: .
+  env_file: .env_wp
+  command: --test-cert --webroot
+  volumes:
+    - /opt/submarine/www:/submarine
+    - /opt/submarine/acme:/submarine/acme
+    - /opt/submarine/certs:/submarine/ssl
+  links:
+    - nginx:nginx
+    - mysql:mysql
+    - cache:cache
+    - redis:redis
+  restart: always
+  stdin_open: true
+  tty: true
